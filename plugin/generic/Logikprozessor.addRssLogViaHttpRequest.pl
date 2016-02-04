@@ -17,7 +17,7 @@
 
 sub addRssLogViaHttpRequest {
     my (%parameters)=@_;
-    my ($title, $content, $tags, $url);
+    my ($title, $content, $tags, $mapping, $url);
 
 	my $settings=$plugin_cache{"Logikprozessor.pl"}{settings};
 	
@@ -26,6 +26,7 @@ sub addRssLogViaHttpRequest {
     $title = $parameters{title} || $settings->{rssLog}{title} || '';
     $content = $parameters{content} || $settings->{rssLog}{content} || '';
     $tags = $parameters{tags} || $settings->{rssLog}{tags} || '';
+    $mapping = $parameters{mapping} || $settings->{rssLog}{mapping} || '';
     $url = $parameters{url} || $settings->{rssLog}{url} || '';
     
     use LWP::UserAgent;
@@ -37,10 +38,11 @@ sub addRssLogViaHttpRequest {
 	$userAgent = LWP::UserAgent->new;
 	$userAgent->agent("WireGatePlugin/1.0");
 
-	$requestURL = sprintf($url."?t=%s&c=%s&tags=%s",
+	$requestURL = sprintf($url."?h=%s&c=%s&t[]=%s&mapping=%s",
 		uri_escape(encode("utf8", $title)),
 		uri_escape(encode("utf8", $content)),
-		uri_escape(encode("utf8", $tags)));
+		uri_escape(encode("utf8", $tags)),
+		uri_escape(encode("utf8", $mapping)));
 
 	$request = HTTP::Request->new(GET => $requestURL);
 	#$request->timeout(5);

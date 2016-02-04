@@ -18,7 +18,7 @@
 
 sub addRssLogViaCurl {
     my (%parameters)=@_;
-    my ($title, $content, $tags, $url);
+    my ($title, $content, $tags, $mapping, $url);
 
 	my $settings=$plugin_cache{"Logikprozessor.pl"}{settings};
 	
@@ -27,18 +27,19 @@ sub addRssLogViaCurl {
     $title = $parameters{title} || $settings->{rssLog}{title} || '';
     $content = $parameters{content} || $settings->{rssLog}{content} || '';
     $tags = $parameters{tags} || $settings->{rssLog}{tags} || '';
+    $mapping = $parameters{mapping} || $settings->{rssLog}{mapping} || '';
     $url = $parameters{url} || $settings->{rssLog}{url} || '';
     
 	# HTTP Request aufsetzen
-	my $requestURL;
-
-	$requestURL = sprintf($url."?t=%s&c=%s&tags=%s",
+	my $requestURL = sprintf($url."?h=%s&c=%s&t[]=%s&mapping=%s",
 		uri_escape(encode("utf8", $title)),
 		uri_escape(encode("utf8", $content)),
-		uri_escape(encode("utf8", $tags)));
+		uri_escape(encode("utf8", $tags)),
+		uri_escape(encode("utf8", $mapping)));
 
-	plugin_log($plugname, "RSSLog url: $requestURL") if $parameters{debug};
-	my $curlResult = system("curl -s \"$requestURL\" &");
+	my $systemCall = "curl -s -g \"$requestURL\" &";
+	plugin_log($plugname, "RSSLog systemCall: $systemCall") if $parameters{debug};
+	my $curlResult = system($systemCall);
 	plugin_log($plugname, "RSSLog curlResult: $curlResult") if $parameters{debug};
 
     return undef;
